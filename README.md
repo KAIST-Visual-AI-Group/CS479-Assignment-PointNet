@@ -11,8 +11,9 @@
 <div align=center>
   <p>
     Instructor: <a href=https://mhsung.github.io target="_blank"><b>Minhyuk Sung</b></a> (mhsung [at] kaist.ac.kr)<br>
-    TA: <b>Jaihoon Kim</b>  (jh27kim [at] kaist.ac.kr)<br>      
-    Credit: <b>Hyunjin Kim</b>  (rlaguswls98 [at] kaist.ac.kr)      
+    TA: <b>Mingue Park </b>  (kicikicik [at] kaist.ac.kr)<br>      
+    Credit: <b>Jaihoon Kim</b>  (jh27kim [at] kaist.ac.kr)<br>
+    <b>Hyunjin Kim</b>  (rlaguswls98 [at] kaist.ac.kr)      
   </p>
 </div>
 
@@ -22,7 +23,7 @@
 
 ## Abstract
 
-[PointNet](https://arxiv.org/abs/1612.00593) is a fundamental yet powerful neural network processing point cloud data. In the first tutorial, we will learn how to use PointNet for different tasks including _classification_, _auto-encoding_, and _segmentation_ by implementing them. Since we aim to make you familiar with implementing neural network models and losses using Pytorch, we provide skeleton codes and what you have to do is just fill in the **TODO** parts of the codes. Before implementing codes, please read the [PointNet](https://arxiv.org/abs/1612.00593) paper together with [our brief summary](https://visual-ai-kaist.notion.site/Tutorial-1-PointNet-12e12629c85e40779f18633f1e7144b7) and the provided codes careful and check how codes flow. Also, we recommend you to read how to implement codes using Pytorch ([Pytorch Tutorial link](https://pytorch.org/tutorials/beginner/pytorch_with_examples.html)).
+[PointNet](https://arxiv.org/abs/1612.00593) is a fundamental yet powerful neural network processing point cloud data. In the first tutorial, we will learn how to use PointNet for different tasks including _classification_ and _segmentation_ by implementing them. Since we aim to make you familiar with implementing neural network models and losses using Pytorch, we provide skeleton codes and what you have to do is just fill in the **TODO** parts of the codes. Before implementing codes, please read the [PointNet](https://arxiv.org/abs/1612.00593) paper together with [our brief summary](https://visual-ai-kaist.notion.site/Tutorial-1-PointNet-12e12629c85e40779f18633f1e7144b7) and the provided codes careful and check how codes flow. Also, we recommend you to read how to implement codes using Pytorch ([Pytorch Tutorial link](https://pytorch.org/tutorials/beginner/pytorch_with_examples.html)).
 
 
 <details>
@@ -35,7 +36,6 @@
   - [Task 0. Global Feature Extraction](#task-0-global-feature-extraction)
   - [Task 1. Point Cloud Classification](#task-1-point-cloud-classification)
   - [Task 2. Point Cloud Part Segmentation](#task-2-point-cloud-part-segmentation)
-  - [Task 3. Point Cloud Auto-Encoding](#task-3-point-cloud-auto-encoding)
 - [Submission Guidelines](#submission-guidelines)
 - [Grading](#grading)
 - [Further Readings](#further-readings)
@@ -64,12 +64,11 @@ pip install tqdm h5py matplotlib
 
 
 ## Code Structure
-Below shows the overall structure of this repository. Bascially, in this tutorial, what you have to do is implementing models and losses by filling in the **TODO** parts of below 4 files.
+Below shows the overall structure of this repository. Bascially, in this tutorial, what you have to do is implementing models and losses by filling in the **TODO** parts of below 3 files.
 ### TODOs
 ```
 - model.py
 - train_cls.py
-- train_ae.py
 - train_seg.py
 ```
 
@@ -88,7 +87,6 @@ pointnet
 │   └── model_checkpoint.py <- Automatically save model checkpoints during training.
 │
 ├── train_cls.py          <- Run classification. <TODO>
-├── train_ae.py           <- Run auto-encoding. <TODO>
 ├── train_seg.py          <- Run part segmentation. <TODO>
 ├── visualization.ipynb   <- Simple point cloud visualization example code.
 │
@@ -101,6 +99,8 @@ pointnet
     │    └── mm-dd_HH-MM-SS/epoch=16-val_acc=88.6.ckpt
     ├── auto_encoding
     └── segmentation
+
+run_colab.ipynb           <- Colab notebook to run the code.
 ```
 
 ## Datasets
@@ -113,7 +113,7 @@ The dataloader automatically downloads the ModelNet40 and ShapeNet datasets. If 
 
 ![image](Figure/feat.png)
 
-PointNet takes 3D point clouds(# points, 3) as inputs and extracts a 1024-sized global feature latent vector, which contains the geometric information of the input point clouds. This global feature vector will be used in the downstream tasks; point cloud classification, segmentation, and auto-encoding. In this part, you implement PointNetFeat model that only results out the global feature vector so that you can utilize this model for implementing the remaining 3 tasks. 
+PointNet takes 3D point clouds(# points, 3) as inputs and extracts a 1024-sized global feature latent vector, which contains the geometric information of the input point clouds. This global feature vector will be used in the downstream tasks; point cloud classification and segmentation. In this part, you implement PointNetFeat model that only results out the global feature vector so that you can utilize this model for implementing the remaining 2 tasks. 
 
 > :bulb: **The figure above is the guideline for the implementation, but you don't need to implement the code completely the same as it. You can assume that each MLP layer in the figure consists of MLP, batch normalization, and activation.**
 
@@ -138,7 +138,7 @@ In point cloud classification tasks, PointNet inputs point clouds (# points, 3) 
 - train_cls.py
 ```
 - Fill in the **TODO** in `model.py` > `PointNetCls`
-- Fill in the **TODO** in `train_cls.py` > `step` and `train_step`
+- Fill in the **TODO** in `train_cls.py` > `step`
 
 You can start training the model by the following command. Also, at the end of the training it will automatically test the model on ModelNet40 dataset.
 
@@ -146,21 +146,23 @@ You can start training the model by the following command. Also, at the end of t
 python train_cls.py
 ```
 
-Also, you can change `batch_size`, `lr`, and `epochs` by using the command below.
+Also, you can change `batch_size`, `lr`, and `epochs`, or use mixed precision (`--amp`) by using the command below. (Note that the default number of epochs is 20, and achieving 100% success is limited to the default epoch number.)
 ```bash
-python train_cls.py --batch_size {batch_size you want} --lr {lr you want} --epochs {epochs you want}
+python train_cls.py --batch_size {batch_size you want} --lr {lr you want} --epochs {epochs you want} {--amp}
 ```
 
 While training, if your model achieves the best result, model checkpoint will be saved automatically as `pointnet/classification/MM-DD_HH-MM-SS/Classification_ckpt_epoch{epoch}_metric:{val_Acc}.ckpt`. 
 
 
 On ModelNet40 test set:
-|                                | Overall Acc |
-| ------------------------------ | ----------- |
-| Paper                          | 89.2 %      |
-| Ours (w/o feature trans.)      | 88.6 %      |
-| Ours (w/ feature trans.)       | 87.7 %      | 
+|                                  | Overall Acc |
+| -------------------------------- | ----------- |
+| Paper                            | 89.2 %      |
+| Ours (100 epoch, float32)        | 87.3 %      |
+| Ours (20 epoch, float32)         | 82.3 %      | 
+| Ours (20 epoch, mix-precision)   | 82.3 %      | 
 
+Note that all our method use `feature_transform=True`.
 
 ### Task 2. Point Cloud Part Segmentation
 ![image](Figure/seg.png)
@@ -175,7 +177,7 @@ For segmentation tasks, PointNet concatenates the second transformed feature wit
 - train_seg.py
 ```
 - Fill in the **TODO** in `model.py` > `PointNetPartSeg`
-- Fill in the **TODO** in `train_seg.py` > `step` and `train_step`
+- Fill in the **TODO** in `train_seg.py` > `step`
 
 You can start training the model by the following command. Also, at the end of the training it will automatically test the model on ShapeNet part dataset.
 
@@ -183,9 +185,9 @@ You can start training the model by the following command. Also, at the end of t
 python train_seg.py
 ```
 
-Also, you can change `batch_size`, `lr`, and `epochs` by using the command below.
+Also, you can change `batch_size`, `lr`, and `epochs`, or use mixed precision (`--amp`) by using the command below. (Note that the default number of epochs is 20, and achieving 100% success is limited to the default epoch number.)
 ```bash
-python train_seg.py --batch_size {batch_size you want} --lr {lr you want} --epochs {epochs you want}
+python train_seg.py --batch_size {batch_size you want} --lr {lr you want} --epochs {epochs you want} {--amp}
 ```
 
 While you are running `train_seg.py`, you are able to see progress bars:
@@ -201,51 +203,24 @@ On ShapeNet Part test set:
 |        | ins. mIoU |
 | ------ | --------- |
 | Paper  | 83.7 %    |
-| Ours   | 83.6 %    | 
+| Ours (100 epoch, float32)  | 82.4 %    | 
+| Ours (20 epoch, float32)  | 76.9 %    | 
+| Ours (20 epoch, mix-precision)  | 79.1 %    | 
 
+## Run on Google CoLab
 
-### Task 3. Point Cloud Auto-Encoding
-![image](Figure/ae.png)
+- [run_colab.ipynb](run_colab.ipynb)
 
-The PointNet Auto-encoder comprises an encoder that inputs point clouds and produces a 1024-sized global feature latent vector, and an MLP decoder that expands this latent vector incrementally until it reaches N*3. This tensor is reshaped into (N, 3), representing N points in 3D coordinates.
-
-> :bulb: **The figure above is the guideline for the implementation, but you don't need to implement the code completely the same as it.**
-
-### TODOs
-```
-- model.py
-- train_ae.py
-```
-- Fill in the **TODO** in `model.py` > `PointNetAutoEncoder`
-- Fill in the **TODO** in `train_ae.py` > `step` and `train_step`
-
-> :bulb: **We recommend not using the T-Net (input transform and feature transform) in the AE task. That's why we provide the PointNetFeat class without T-Net inside the PointNetAutoEncoder class definition.**
-
-You can start training the model by the following command. Also, at the end of the training it will automatically test the model on ModelNet40 dataset.
-
-```
-python train_ae.py
-```
-
-Also, you can change `batch_size`, `lr`, and `epochs` by using the command below.
-```bash
-python train_ae.py --batch_size {batch_size you want} --lr {lr you want} --epochs {epochs you want}
-```
-
-While training, if your model achieves the best result, model checkpoint will be saved automatically as `pointnet/auto_encoding/MM-DD_HH-MM-SS/AutoEncoding_ckpt_epoch{epoch}_metric:{val_CD}.ckpt`. 
-
-On ModelNet40 test set:
-|        | Chamfer Dist. |
-| ------ | ------------- |
-| Ours   | 0.0043        |
-
+We provide a simple Google Colab notebook example for running the code on Google’s GPU.
+You can clone this repository to your Google Drive and edit files or execute commands directly in Google Colab.
+When running in a Colab environment with a T4 GPU, it takes approximately 5 minutes for classification and 15 minutes for segmentation using mixed precision & 20 epochs.
 
 ## What to Submit
 
 Compile the following files as a **ZIP** file named `{NAME}_{STUDENT_ID}.zip` and submit the file via KLMS.
-1. 4 codes that you implemented: `model.py, train_ae.py, train_cls.py, train_seg.py`;
-2. Model checkpoint file that achieves the best performance for classification, segmentation, and auto-encoding each;
-3. A PDF file: {NAME}_{ID}.pdf that contains screenshot at the end of training for EACH TASK (classification, segmentation, and auto-encoding).
+1. 3 codes that you implemented: `model.py, train_cls.py, train_seg.py`;
+2. Model checkpoint file that achieves the best performance for classification, segmentation each;
+3. A PDF file: {NAME}_{ID}.pdf that contains screenshot at the end of training for EACH TASK (classification, segmentation).
 
 Screenshot Example:
 
@@ -262,23 +237,21 @@ Screenshot Example:
 
 **Your score will incur a 10% deduction for each missing item in the [Submission Guidelines](#submission-guidelines) section.**
 
-Otherwise, you will receive up to 30 points from this assignment that count toward your final grade.
+Otherwise, you will receive up to 20 points from this assignment that count toward your final grade.
 
-| Evaluation Criterion | Classification (Acc) | Segmentation (mIoU) | Auto-Encoding (CD) |
-|---|---|---|---|
-| **Success Condition \(100%\)** | 0.85 | 0.80 | 0.005 |
-| **Success Condition \(50%)**   | 0.55  | 0.60 | 0.030 |
+| Evaluation Criterion | Classification (Acc) | Segmentation (mIoU) |
+|---|---|---|
+| **Success Condition \(100%\)** | 0.75 | 0.70 |
+| **Success Condition \(50%)**   | 0.55  | 0.60 |
 
 As shown in the table above, each evaluation metric is assigned up to 10 points. In particular,
 - **Classification (Task 1)**
-  - You will receive 10 points if the reported value is equal to or, *greater* than the success condition \(100%)\;
+  - You will receive 10 points if the reported value is equal to or, *greater* than the success condition \(100%)\ with `epochs=20`;
   - Otherwise, you will receive 5 points if the reported value is equal to or, *greater* than the success condition \(50%)\.
 - **Segmentation (Task 2)**
-  - You will receive 10 points if the reported value is equal to or, *greater* than the success condition \(100%)\;
+  - You will receive 10 points if the reported value is equal to or, *greater* than the success condition \(100%)\ with `epochs=20`
   - Otherwise, you will receive 5 points if the reported value is equal to or, *greater* than the success condition \(50%)\.
-- **Auto-Encoding (Task 3)**
-  - You will receive 10 points if the reported value is equal to or, *less* than the success condition \(100%)\;
-  - Otherwise, you will receive 5 points if the reported value is equal to or, *less* than the success condition \(50%)\.
+
 
 ## Further Readings
 

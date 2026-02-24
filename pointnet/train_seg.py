@@ -32,13 +32,23 @@ def step(points, pc_labels, class_labels, model):
     return loss, logits, preds
 
 
-def train_step(points, pc_labels, class_labels, model, optimizer, train_acc_metric):
-    loss, logits, preds = step(
-        points, pc_labels, class_labels, model
-    )
-    train_batch_acc = train_acc_metric(preds, pc_labels.to(device))
+def train_step(points, pc_labels, class_labels, model, optimizer, train_acc_metric, scaler=None, use_amp=False):
+    optimizer.zero_grad()
+    
+    with torch.cuda.amp.autocast(enabled=use_amp):
+        loss, logits, preds = step(
+            points, pc_labels, class_labels, model
+        )
+    
+    if use_amp:
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
+    else:
+        loss.backward()
+        optimizer.step()
 
-    # TODO : Implement backpropagation using optimizer and loss
+    train_batch_acc = train_acc_metric(preds, pc_labels.to(device))
 
     return loss, train_batch_acc
 
@@ -55,6 +65,15 @@ def validation_step(
     return loss, masked_preds, val_batch_acc, val_batch_iou
 
 
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 def main(args):
     global device
     device = "cpu" if args.gpu == -1 else f"cuda:{args.gpu}"
@@ -63,6 +82,7 @@ def main(args):
     model = model.to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    scaler = torch.cuda.amp.GradScaler(enabled=args.amp)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(
         optimizer, milestones=[30, 80], gamma=0.5
     )
@@ -91,7 +111,7 @@ def main(args):
         train_epoch_loss = []
         for points, pc_labels, class_labels in pbar:
             train_batch_loss, train_batch_acc = train_step(
-                points, pc_labels, class_labels, model, optimizer, train_acc_metric
+                points, pc_labels, class_labels, model, optimizer, train_acc_metric, scaler, args.amp
             )
             train_epoch_loss.append(train_batch_loss)
             pbar.set_description(
@@ -159,6 +179,8 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--seed", type=int, default=1, help="Random seed")
+    parser.add_argument("--amp", action="store_true", help="Use mixed precision training")
 
     args = parser.parse_args()
     args.gpu = 0
