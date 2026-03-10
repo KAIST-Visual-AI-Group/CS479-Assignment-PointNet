@@ -51,7 +51,8 @@ def validation_step(points, labels, model, val_acc_metric):
 
     return loss, val_batch_acc
 
-
+import random
+import numpy as np
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)

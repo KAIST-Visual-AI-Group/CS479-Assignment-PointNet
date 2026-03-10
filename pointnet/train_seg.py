@@ -65,6 +65,8 @@ def validation_step(
     return loss, masked_preds, val_batch_acc, val_batch_iou
 
 
+import random
+import numpy as np
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
