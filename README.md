@@ -50,11 +50,10 @@ conda create -n pointnet python=3.9
 conda activate pointnet
 ```
 
-After that, install pytorch 1.13.0 and other essential packages by running:
+After that, install pytorch 2.5.1 and other essential packages by running:
 ```
 conda install pytorch=2.5.1 torchvision pytorch-cuda=12.4 -c pytorch -c nvidia
 conda install -c fvcore -c iopath -c conda-forge fvcore iopath
-conda install pytorch3d -c pytorch3d
 ```
 
 Lastly, install remained necessary packages using `pip`:
