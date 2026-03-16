@@ -207,14 +207,6 @@ On ShapeNet Part test set:
 | Ours (20 epoch, float32)  | 76.9 %    | 
 | Ours (20 epoch, mix-precision)  | 79.1 %    | 
 
-## Run on Google CoLab
-
-- [run_colab.ipynb](run_colab.ipynb)
-
-We provide a simple Google Colab notebook example for running the code on Google’s GPU.
-You can clone this repository to your Google Drive and edit files or execute commands directly in Google Colab.
-When running in a Colab environment with a T4 GPU, it takes approximately 5 minutes for classification and 15 minutes for segmentation using mixed precision & 20 epochs.
-
 ## What to Submit
 
 Compile the following files as a **ZIP** file named `{NAME}_{STUDENT_ID}.zip` and submit the file via KLMS.
