@@ -219,7 +219,7 @@ When running in a Colab environment with a T4 GPU, it takes approximately 5 minu
 
 Compile the following files as a **ZIP** file named `{NAME}_{STUDENT_ID}.zip` and submit the file via KLMS.
 1. 3 codes that you implemented: `model.py, train_cls.py, train_seg.py`;
-2. Model checkpoint file that achieves the best performance for classification, segmentation each (please rename with `{student_id}_cls.ckpt, {student_id}_seg.ckpt`);
+2. Model checkpoint file that achieves the best performance for classification, segmentation each (please rename with `{STUDENT_ID}_cls.ckpt, {STUDENT_ID}_seg.ckpt`);
 3. A PDF file: {NAME}_{ID}.pdf that contains screenshot at the end of training for EACH TASK (classification, segmentation).
 
 Screenshot Example:
